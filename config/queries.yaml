@@ -1,0 +1,4 @@
+delete_by_name: delete from tb_test where name= %s
+insert_name: INSERT INTO tb_test (name) VALUES (%s)
+select_by_name: select * from tb_test where name = %s
+select_by_name_and_id: select * from tb_test where name = %s and id = %s
