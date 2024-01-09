@@ -26,7 +26,7 @@ def get_logger():
     LOGGER = logging.getLogger()
 
     # 로그의 출력 기준 설정
-    LOGGER.setLevel(logging.DEBUG)
+    LOGGER.setLevel(logging.INFO)
 
     # 로그 출력 형식
     formatter = logging.Formatter(FORMAT_STRING)
