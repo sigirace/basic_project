@@ -3,6 +3,7 @@ from utils import logger
 import yaml
 import traceback
 
+app_name = 'test_process'
 log = logger.get_logger()
 
 def main(log=log):
@@ -11,6 +12,9 @@ def main(log=log):
         loaded_queries = yaml.safe_load(file)
     
     try:
+
+        log.info('START PROCESS: {} application.'.format(app_name))
+
         log.info("START insert DB")
         print(db.insert(loaded_queries['insert_name'], data=("kangsigi",)))
         log.info("END insert DB")
@@ -29,6 +33,8 @@ def main(log=log):
         print(vars(result))
         log.info("END select DB")
 
+        log.info('DONE PROCESS.')
+        
     except:
         msg_err = traceback.format_exc()
         log.error("ERROR PROCESS\n{}".format(msg_err))
