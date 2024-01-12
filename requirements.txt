@@ -1,0 +1,9 @@
+certifi @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_477u68wvzm/croot/certifi_1671487773341/work/certifi
+numpy==1.21.6
+pandas==1.1.5
+PyMySQL==1.1.0
+python-dateutil==2.8.2
+python-dotenv==0.21.1
+pytz==2023.3.post1
+PyYAML==6.0.1
+six==1.16.0
