@@ -3,7 +3,7 @@ import os
 import logging
 from datetime import datetime
 
-PATH_LOG_INFO = "config/logInfo.json"
+PATH_LOG_INFO = "src/config/logInfo.json"
 
 def get_logger():
 

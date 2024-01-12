@@ -6,7 +6,7 @@ import traceback
 app_name = 'test_process'
 log = logger.get_logger()
 
-with open('./config/queries.yaml', 'r') as file:
+with open('src/config/queries.yaml', 'r') as file:
     loaded_queries = yaml.safe_load(file)
 
 def main(log=log):
