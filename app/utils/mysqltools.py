@@ -32,12 +32,12 @@ def create_pool(key):
     
     return pool
 
-def execute_query(pool, sql, args):
+def execute_query(pool, sql, data):
     con = pool.get_connection()
     cur = con.cursor()
     
     try:
-        cur.execute(sql, args)
+        cur.execute(sql, data)
         con.commit()
     except Exception as e:
         con.rollback()
@@ -45,13 +45,13 @@ def execute_query(pool, sql, args):
     finally:
         con.close()
 
-def select_one(pool, sql, args):
+def select_one(pool, sql, data):
 
     con=pool.get_connection()
     cur = con.cursor()
 
     try:
-        cur.execute(sql, args)
+        cur.execute(sql, data)
         result = cur.fetchone()
     except Exception as e:
         raise e
@@ -59,13 +59,13 @@ def select_one(pool, sql, args):
         con.close()
     return result
 
-def select(pool, sql, args):
+def select(pool, sql, data):
 
     con=pool.get_connection()
     cur = con.cursor()
 
     try:
-        cur.execute(sql, args)
+        cur.execute(sql, data)
         result = cur.fetchall()
     except Exception as e:
         raise e
