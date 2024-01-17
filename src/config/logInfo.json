@@ -1,6 +1,0 @@
-{
-  "root": "./logs",
-  "name": "problem_recommend",
-  "format": "[%(levelname)s]\t%(asctime)s\t%(message)s",
-  "limit_MB": 10
-}

@@ -1,1 +1,0 @@
-[levelname] (asctime)s\t message.
