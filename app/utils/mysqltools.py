@@ -45,20 +45,6 @@ def execute_query(pool, sql, data):
     finally:
         con.close()
 
-def select_one(pool, sql, data):
-
-    con=pool.get_connection()
-    cur = con.cursor()
-
-    try:
-        cur.execute(sql, data)
-        result = cur.fetchone()
-    except Exception as e:
-        raise e
-    finally:
-        con.close()
-    return result
-
 def select(pool, sql, data):
 
     con=pool.get_connection()
