@@ -6,6 +6,9 @@ import os
 from utils import mysqltools as db
 from utils import logger
 
+from typing import Union
+from fastapi import FastAPI
+
 # application import
 
 app_name = 'test_process'
@@ -17,69 +20,36 @@ with open(QUERY_PATH, 'r') as file:
     loaded_queries = yaml.safe_load(file)
 
 db_pool = db.create_pool(key="devkey")
+app = FastAPI()
 
-def main(args):
+@app.get("/select_sync/{name}")
+def select_sync(name: str):
     
-    try:
+    # Start process
+    log.info('START SELECT PROCESS: {} application.'.format(app_name))
+    
+    log.info("START select DB")
+    # db select
+    result = db.select(pool=db_pool, sql=loaded_queries['select_by_name'], data=(name,))
+    log.info("END select DB")
+    
+    # End process
+    log.info('DONE PROCESS.')
 
-        # Start log
-        log.info('START PROCESS: {} application.'.format(app_name))
+    return {"result": result}
 
-        # function log
-        log.info("START insert DB")
-        db.execute_query(pool=db_pool, sql=loaded_queries['insert_name'], data=("test_name",))
-        log.info("END insert DB")
+@app.get("/select_async/{name}")
+async def select_async(name:str):
+    
+    # Start process
+    log.info('START SELECT PROCESS: {} application.'.format(app_name))
+    
+    log.info("START select DB")
+    # db select
+    result = db.select(pool=db_pool, sql=loaded_queries['select_by_name'], data=(name,))
+    log.info("END select DB")
+    
+    # End process
+    log.info('DONE PROCESS.')
 
-        # function log
-        log.info("START insert DB")
-        db.execute_query(pool=db_pool, sql=loaded_queries['insert_name'], data=("test_name2",))
-        log.info("END insert DB")
-
-        # function log
-        log.info("START select DB")
-        result = db.select(pool=db_pool, sql=loaded_queries['select_by_name'], data=("test_name",))
-        print(result)
-        log.info("END select DB")
-
-        # function log
-        log.info("START select DB")
-        result = db.select(pool=db_pool, sql=loaded_queries['select_by_name_in'], data=(args.list,))
-        print(result)
-        log.info("END select DB")
-
-        # function log
-        log.info("START update DB")
-        db.execute_query(pool=db_pool, sql=loaded_queries['update_by_name'], data=("test_name2", "test_name3"))
-        log.info("END update DB")
-
-        # function log
-        log.info("START select DB")
-        result = db.select(pool=db_pool, sql=loaded_queries['select_by_name'], data=("test_name3",))
-        print(result)
-        log.info("END select DB")
-
-        # function log
-        log.info("START delete DB")
-        db.execute_query(pool=db_pool, sql=loaded_queries['delete_by_name'], data=("test_name",))
-        log.info("END delete DB")
-
-        # function log
-        log.info("START delete DB")
-        db.execute_query(pool=db_pool, sql=loaded_queries['delete_by_name'], data=("test_name3",))
-        log.info("END delete DB")
-
-        # End log
-        log.info('DONE PROCESS.')
-
-    except:
-        # Error log
-        msg_err = traceback.format_exc()
-        log.error("ERROR PROCESS\n{}".format(msg_err))
-        
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--add_arg", type=str, default="arg1", help="argument")
-    parser.add_argument("--list", nargs="+", type=str, help="List of items")
-    args = parser.parse_args()
-    main(args)
+    return {"result": result}

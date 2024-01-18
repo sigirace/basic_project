@@ -3,10 +3,9 @@ import os
 import pymysqlpool
 from pymysql.cursors import DictCursor
 from dotenv import load_dotenv
-from utils import crypto
+# from utils import crypto
 
 load_dotenv()
-
 
 def create_pool(key):
 
@@ -14,11 +13,12 @@ def create_pool(key):
 
         # pymysqlpool.logger.setLevel('DEBUG')
         # key = devkey
-        aes = crypto.AESCipher(key=key)
+        # aes = crypto.AESCipher(key=key)
         config = {
             'host': os.environ.get('HOST'),
             'user': os.environ.get('USERNAME'),
-            'password': aes.decrypt(os.environ.get('PASSWORD')),
+            # 'password': aes.decrypt(os.environ.get('PASSWORD')),
+            'password': os.environ.get('PASSWORD'),
             'database': os.environ.get('DB'),
             'port': int(os.environ.get('PORT')),
             'autocommit': True,
