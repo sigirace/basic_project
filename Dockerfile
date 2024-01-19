@@ -23,5 +23,6 @@ COPY app /app
 EXPOSE 80
 
 # CMD ["uvicorn", "--host", "0.0.0.0", "--port", "80", "main:app"]
+# CMD ["tail", "-f", "/dev/null"]
 
 CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:80", "--workers", "4", "--threads", "4", "--timeout", "1000"]

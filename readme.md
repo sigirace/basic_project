@@ -1,12 +1,6 @@
-## Basic Project
+## Basic Project-python 기반 추론 서버
 
-### python 기반 추론 서버
-
-1. mysql
-2. datahandler
-3. logging
-
-### .env file 생성 필요
+### DB 접속 환경변수 필요
 
 HOST='your_host'
 DB='your_db'
@@ -23,10 +17,10 @@ name VARCHAR(255)
 
 ### logging
 
-root_path : config/loginfo.json
+root_path : /app/config/loginfo.json
 
-- "root": "./logs"
+- "root": "/app/logs"
 
-log level : utils/logger.py
+log level : /app/utils/logger.py
 
 - LOGGER.setLevel(logging.INFO)
