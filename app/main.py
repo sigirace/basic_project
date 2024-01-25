@@ -51,7 +51,7 @@ async def select_endpoint(resource_id: int):
                   "status": "internal server error",
                   "result": str(e)}
 
-    return {"result": result}
+    return result
 
 @app.on_event("shutdown")
 async def shutdown_event():
