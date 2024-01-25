@@ -8,8 +8,6 @@ load_dotenv()
 
 async def create_pool(db_type=''):
 
-    print(os.getenv('{}PORT'.format(db_type)))
-    
     config = {
         'host': os.getenv('{}HOST'.format(db_type)),
         'port': int(

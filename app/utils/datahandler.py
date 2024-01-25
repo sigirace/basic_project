@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import pickle
+import json
 
 PATH_DATA_STORAGE = ""
 
@@ -27,7 +28,15 @@ class DF():
         '''
         df = pd.read_pickle("{}.pkl".format(os.path.join(self.storage, filename)))
         return df
-    
-class DT():
+
+class DataTool():
+
     def __init__(self):
         pass
+
+    def list_to_jsonline(self, DATA_PATH, data):
+        # JSON Lines 형식의 파일로 저장
+        with open(DATA_PATH, "w") as jsonl_file:
+            for item in data:
+                json.dump(item, jsonl_file)
+                jsonl_file.write("\n")
