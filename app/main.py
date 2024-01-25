@@ -36,7 +36,8 @@ async def select_endpoint(resource_id: int):
         app.state.log.info("END select DB")
 
         result = {"statusCode": HTTPStatus.OK,
-                  "status": "{} selected.".format(len(select_result))}
+                  "status" : "ok",
+                  "result": "{} selected.".format(len(select_result))}
         
         # End process
         app.state.log.info('DONE PROCESS.')
@@ -47,7 +48,8 @@ async def select_endpoint(resource_id: int):
         app.state.log.error(traceback.format_exc())
 
         result = {"statusCode":HTTPStatus.INTERNAL_SERVER_ERROR,
-                  "status": str(e)}
+                  "status": "internal server error",
+                  "result": str(e)}
 
     return {"result": result}
 
