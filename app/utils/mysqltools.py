@@ -24,10 +24,10 @@ async def create_pool(db_type=''):
 
     return pool
 
-async def execute_query(pool, sql, data=None):
+async def execute_query(pool, sql, args=None):
     async with pool.acquire() as conn:
         async with conn.cursor() as cur:
-            await cur.execute(sql, data)
+            await cur.execute(sql, args)
             result = None
             if sql.strip().upper().startswith("SELECT"):
                 result = await cur.fetchall()
