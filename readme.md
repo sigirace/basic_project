@@ -10,10 +10,12 @@ PASSWORD='your_password'
 
 ### db test table 생성 필요
 
+```
 CREATE TABLE tb_test (
 id INT AUTO_INCREMENT PRIMARY KEY,
 name VARCHAR(255)
 );
+```
 
 ### logging
 

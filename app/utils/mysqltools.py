@@ -1,108 +1,77 @@
 # -*- coding: utf-8 -*-
 import os
-import pymysqlpool
-from pymysql.cursors import DictCursor
+import aiomysql
 from dotenv import load_dotenv
-# from utils import crypto
+import pandas as pd
 
 load_dotenv()
 
-def create_pool():
+async def create_pool(db_type=''):
 
-    try:
-        config = {
-            'host': os.environ.get('HOST'),
-            'user': os.environ.get('USERNAME'),
-            'password': os.environ.get('PASSWORD'),
-            'database': os.environ.get('DB'),
-            'port': int(os.environ.get('PORT')),
-            'autocommit': True,
-            'cursorclass': DictCursor
-        }
+    print(os.getenv('{}PORT'.format(db_type)))
+    
+    config = {
+        'host': os.getenv('{}HOST'.format(db_type)),
+        'port': int(
+                    os.getenv('{}PORT'.format(db_type))
+                    ),
+        'user': os.getenv('{}USERNAME'.format(db_type)),
+        'password': os.getenv('{}PASSWORD'.format(db_type)),
+        'db': os.getenv('{}DB'.format(db_type)),
+        'cursorclass': aiomysql.DictCursor,
+        'autocommit': True
+    }
 
-        pool = pymysqlpool.ConnectionPool(size=2, maxsize=5, pre_create_num=2, name='pool', **config)
-    
-    except Exception as e:
-        raise e
-    
+    pool = await aiomysql.create_pool(**config)
+
     return pool
 
-def execute_query(pool, sql, data):
-    con = pool.get_connection()
-    cur = con.cursor()
-    
-    try:
-        cur.execute(sql, data)
-        con.commit()
-    except Exception as e:
-        con.rollback()
-        raise e
-    finally:
-        con.close()
+async def execute_query(pool, sql, data=None):
+    async with pool.acquire() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(sql, data)
+            result = None
+            if sql.strip().upper().startswith("SELECT"):
+                result = await cur.fetchall()
+            return result
 
-def select(pool, sql, args):
+async def select(pool, sql, args=None):
+    return await execute_query(pool, sql, args)
 
-    con=pool.get_connection()
-    cur = con.cursor()
-
-    try:
-        cur.execute(sql, args)
-        result = cur.fetchall()
-    except Exception as e:
-        raise e
-    finally:
-        con.close()
-        return result
-
-def insert_dataframe(pool, table_name, dataframe):
-
-    con = pool.get_connection()
-    cur = con.cursor()
-
-    try:
-        con.begin()  # 트랜잭션 시작
-        for index, row in dataframe.iterrows():
-
-            columns = ', '.join(row.index)
-            placeholders = ', '.join(['%s'] * len(row))
-            sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-            args = tuple(row)
-
-            cur.execute(sql, args)
-
-        con.commit()  # 모든 삽입 작업이 성공하면 커밋
-
-    except Exception as e:
-        con.rollback()  # 삽입 중 예외가 발생하면 롤백
-        raise e
-
-    finally:
-        con.close()
+async def insert_dataframe(pool, table_name: str, dataframe: pd.DataFrame):
+    async with pool.acquire() as conn:
+        async with conn.cursor() as cur:
+            await conn.begin()
+            try:
+                for index, row in dataframe.iterrows():
+                    columns = ', '.join(row.index)
+                    placeholders = ', '.join(['%s'] * len(row))
+                    sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+                    args = tuple(row)
+                    await cur.execute(sql, args)
+                await conn.commit()
+            except Exception as e:
+                await conn.rollback()
+                raise
         
-def upsert_dataframe(pool, table_name, dataframe):
+async def upsert_dataframe(pool, table_name: str, dataframe: pd.DataFrame):
+    async with pool.acquire() as conn:
+        async with conn.cursor() as cur:
+            await conn.begin()
+            try:
+                for index, row in dataframe.iterrows():
+                    columns = ', '.join(row.index)
+                    placeholders = ', '.join(['%s'] * len(row))
+                    update_stmt = ', '.join([f"{col}=VALUES({col})" for col in row.index])
+                    sql = f"""INSERT INTO {table_name} ({columns}) VALUES ({placeholders})
+                              ON DUPLICATE KEY UPDATE {update_stmt}"""
+                    args = tuple(row)
+                    await cur.execute(sql, args)
+                await conn.commit()
+            except Exception as e:
+                await conn.rollback()
+                raise
 
-    con = pool.get_connection()
-    cur = con.cursor()
-
-    try:
-        con.begin()  # 트랜잭션 시작
-        for index, row in dataframe.iterrows():
-            columns = ', '.join(row.index)
-            placeholders = ', '.join(['%s'] * len(row))
-            update_stmt = ', '.join([f"{col}=VALUES({col})" for col in row.index])
-
-            sql = f"""INSERT INTO {table_name} ({columns}) VALUES ({placeholders})
-                      ON DUPLICATE KEY UPDATE {update_stmt}"""
-
-            args = tuple(row)
-
-            cur.execute(sql, args)
-
-        con.commit()  # 모든 삽입/업데이트 작업이 성공하면 커밋
-
-    except Exception as e:
-        con.rollback()  # 작업 중 예외가 발생하면 롤백
-        raise e
-
-    finally:
-        con.close()
+async def close_pool(pool):
+    pool.close()
+    await pool.wait_closed()
