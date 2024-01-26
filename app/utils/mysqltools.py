@@ -9,13 +9,11 @@ load_dotenv()
 async def create_pool(db_type=''):
 
     config = {
-        'host': os.getenv('{}HOST'.format(db_type)),
-        'port': int(
-                    os.getenv('{}PORT'.format(db_type))
-                    ),
-        'user': os.getenv('{}USERNAME'.format(db_type)),
-        'password': os.getenv('{}PASSWORD'.format(db_type)),
-        'db': os.getenv('{}DB'.format(db_type)),
+        'host': os.getenv('{}_HOST'.format(db_type)),
+        'port': int(os.getenv('{}_PORT'.format(db_type))),
+        'user': os.getenv('{}_USERNAME'.format(db_type)),
+        'password': os.getenv('{}_PASSWORD'.format(db_type)),
+        'db': os.getenv('{}_DB'.format(db_type)),
         'cursorclass': aiomysql.DictCursor,
         'autocommit': True
     }
@@ -24,18 +22,22 @@ async def create_pool(db_type=''):
 
     return pool
 
-async def execute_query(pool, sql, args=None):
+async def execute_query(pool, sql, args=None, one=False):
     async with pool.acquire() as conn:
         async with conn.cursor() as cur:
             await cur.execute(sql, args)
             result = None
             if sql.strip().upper().startswith("SELECT"):
-                result = await cur.fetchall()
+                if one:
+                    result = await cur.fetchone()
+                    result = list(result.values())[0]
+                else:
+                    result = await cur.fetchall()
             return result
 
-async def select(pool, sql, args=None):
-    return await execute_query(pool, sql, args)
-
+async def select(pool, sql, args=None, one=False):
+    return await execute_query(pool, sql, args, one)
+        
 async def insert_dataframe(pool, table_name: str, dataframe: pd.DataFrame):
     async with pool.acquire() as conn:
         async with conn.cursor() as cur:
